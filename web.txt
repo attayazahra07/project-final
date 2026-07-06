@@ -1,0 +1,99 @@
+================================================================================
+PROJECT SPECIFICATION: GLOBAL SUPPLY CHAIN RISK INTELLIGENCE PLATFORM
+================================================================================
+
+Halo Team,
+
+Kita akan membangun sebuah platform monitoring risiko rantai pasok global (dashboard satu pintu) untuk membantu perusahaan menganalisis kelayakan impor dari berbagai negara berdasarkan data real-time ekonomi, cuaca, logistik, dan geopolitik.
+
+Mohon pelajari spesifikasi teknis, arsitektur, dan fitur yang wajib diimplementasikan di bawah ini. Target kita adalah fungsionalitas yang simpel, cepat, dan aman (bebas rate-limit API).
+
+--------------------------------------------------------------------------------
+1. TECH STACK (Paling Simpel & Monolith)
+--------------------------------------------------------------------------------
+Agar development cepat dan menghindari isu CORS/Token Auth yang rumit, kita akan menggunakan arsitektur Monolith:
+
+- Backend      : PHP 8.x / Laravel 10+ or 11
+- Database     : MySQL
+- Frontend     : Blade Template (Laravel), Bootstrap 5 (via CDN)
+- Interaksi    : Vanilla JavaScript (ES6) + Fetch API (AJAX)
+- Visualisasi  : Chart.js (via CDN)
+- Peta         : Leaflet.js (via CDN) + OpenStreetMap
+
+--------------------------------------------------------------------------------
+2. DAFTAR API EKSTERNAL (WAJIB DIGUNAKAN - SEMUA GRATIS)
+--------------------------------------------------------------------------------
+1. Open-Meteo API      -> Data cuaca global (Tanpa API Key).
+2. World Bank API      -> Data ekonomi global (GDP, Inflasi, Populasi, dll).
+3. REST Countries API  -> Data dasar negara (Mata uang, bahasa, wilayah).
+4. ExchangeRate API    -> Kurs mata uang real-time.
+5. World Port Index    -> Dataset publik lokasi pelabuhan dunia (Download & simpan ke DB).
+6. GNews API           -> Berita ekonomi, logistik, dan geopolitik (Gunakan API Key gratis).
+7. OpenStreetMap       -> Base map untuk Leaflet.js.
+
+*PERHATIAN: Implementasikan Laravel Cache (durasi 2-6 jam) pada endpoint API eksternal (terutama GNews & ExchangeRate) untuk menghemat kuota rate-limit harian kita!*
+
+--------------------------------------------------------------------------------
+3. STRUKTUR DATABASE (MINIMAL TABLE)
+--------------------------------------------------------------------------------
+Gunakan Migration Laravel untuk membuat tabel-tabel utama berikut:
+- users          : Data pengguna & admin.
+- countries      : Kode negara, nama, dan cache data dasar.
+- ports          : Data pelabuhan (id, country_id, port_name, lat, lng).
+- risk_scores    : Riwayat skor risiko negara (country_id, weather, inflation, currency, news, total_risk).
+- watchlists     : Negara favorit pilihan user (user_id, country_id).
+- news_cache     : Cache berita sementara untuk menghemat kuota API.
+- positive_words : Kamus kata positif untuk Sentiment Analysis (id, word).
+- negative_words : Kamus kata negatif untuk Sentiment Analysis (id, word).
+- articles       : Artikel analisis yang ditulis oleh Admin.
+
+--------------------------------------------------------------------------------
+4. 5 ENDPOINT API INTERNAL (WAJIB DISEDIAKAN DALAM LARAVEL)
+--------------------------------------------------------------------------------
+Gunakan `routes/api.php` atau `routes/web.php` untuk menyediakan endpoint JSON yang akan dikonsumsi oleh AJAX Frontend:
+- GET /api/countries -> Mengembalikan data ekonomi & info negara terpilih.
+- GET /api/risk      -> Mengembalikan hasil kalkulasi skor risiko negara.
+- GET /api/ports     -> Mengembalikan daftar koordinat pelabuhan berdasarkan negara untuk marker Leaflet.
+- GET /api/news      -> Mengembalikan berita terbaru beserta hasil analisis sentimennya.
+- GET /api/currency  -> Mengembalikan data kurs historis/real-time untuk Chart.js.
+
+--------------------------------------------------------------------------------
+5. 10 FITUR UTAMA DASHBOARD YAG HARUS DIEMBAT
+--------------------------------------------------------------------------------
+1. Global Country Dashboard : Dropdown pilih negara -> Menampilkan GDP, Inflasi, Populasi, Mata Uang, & Cuaca saat ini via AJAX.
+2. Risk Scoring Engine     : Algoritma kustom (Weighted Risk Model) untuk menghitung total skor risiko (Low, Medium, High).
+3. Global Weather Monitor  : Peta Leaflet.js yang menunjukkan indikator cuaca (angin, hujan, badai) di negara terpilih.
+4. Currency Impact         : Grafik tren perubahan kurs mata uang menggunakan Chart.js.
+5. News Intelligence       : Feed berita logistik/perdagangan terupdate dari GNews API.
+6. Port Location Dashboard : Peta Leaflet.js dengan marker interaktif seluruh pelabuhan dunia + fitur pencarian.
+7. Data Visualization      : Grafik komprehensif untuk tren GDP, Inflasi, dan Skor Risiko dari waktu ke waktu (Chart.js).
+8. Country Comparison      : Fitur membandingkan data 2 negara secara head-to-head (misal: Jerman vs Indonesia).
+9. Favorite Monitoring     : Fitur Bookmark/Watchlist negara agar user bisa memantau negara pilihan di homepage mereka.
+10. Admin Dashboard        : CRUD untuk manajemen User, data Pelabuhan, dan Artikel Analisis Rantai Pasok.
+
+--------------------------------------------------------------------------------
+6. FITUR LOGIKA KHUSUS (AI / DATA SCIENCE SECARA MANDIRI)
+--------------------------------------------------------------------------------
+A. Lexicon-Based Sentiment Analysis (PHP murni, jangan pakai API berbayar):
+   - Ambil teks berita dari GNews.
+   - Pecah teks menjadi array kata tunggal (lowercase, bersihkan tanda baca).
+   - Cocokkan kata tersebut dengan tabel `positive_words` dan `negative_words` di database menggunakan array PHP (efisienkan query, jangan loop query DB!).
+   - Hitung persentase Kecenderungan Sentimen (Contoh Output: Positive 60%, Neutral 25%, Negative 15%).
+
+B. Supply Chain Risk Prediction Model:
+   - Buat fungsi hitung total skor risiko menggunakan pembobotan logika kustom.
+   - Contoh Bobot: Weather Risk (30%) + Inflation Risk (20%) + News/Geopolitical Risk (40%) + Currency Risk (10%) = Total Risk %.
+
+--------------------------------------------------------------------------------
+7. WORKFLOW DEVELOPMENT YANG DISARANKAN
+--------------------------------------------------------------------------------
+1. Buat kerangka database (Migration & Seeders data dummy negara/pelabuhan/kata sentimen).
+2. Integrasikan template Admin Bootstrap 5 ke dalam Laravel Blade (potong menjadi layouts, sidebar, header).
+3. Hubungkan frontend dengan data dummy via Fetch API (Peta Leaflet & Chart.js harus bisa merender data dummy dulu).
+4. Selesaikan logika Backend untuk hitung skor risiko dan analisis sentimen berita.
+5. Terakhir, gantikan data dummy dengan integrasi API eksternal asli yang sesungguhnya + pasang sistem Caching.
+
+Jika ada kendala mengenai struktur JSON dari World Bank API atau Open-Meteo, silakan diskusikan langsung di grup koordinasi kita. 
+
+Selamat bekerja!
+================================================================================
