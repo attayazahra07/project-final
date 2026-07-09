@@ -213,10 +213,25 @@
                     <i class="fa-solid fa-star"></i> My Watchlist
                 </a>
             </li>
+
+            @if(auth()->check() && auth()->user()->role === 'admin')
+            <li class="nav-item mt-3 mb-1 px-4">
+                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Admin</small>
+            </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                <a class="nav-link {{ request()->is('admin*') ? 'active' : '' }}" href="{{ route('admin.index') }}">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> Control Panel
                 </a>
+            </li>
+            @endif
+
+            <li class="nav-item mt-3">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <a class="nav-link" href="#" onclick="event.preventDefault(); this.closest('form').submit();">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </a>
+                </form>
             </li>
         </ul>
     </nav>
@@ -233,8 +248,8 @@
             </div>
             <div class="d-flex align-items-center gap-3">
                 <div class="text-end d-none d-md-block">
-                    <div class="fw-bold fs-6">User Name</div>
-                    <div class="text-muted" style="font-size: 0.8rem;">user@taya.com</div>
+                    <div class="fw-bold fs-6">{{ auth()->user()->name ?? 'User' }}</div>
+                    <div class="text-muted" style="font-size: 0.8rem;">{{ auth()->user()->email ?? '' }}</div>
                 </div>
                 <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                     <i class="fa-solid fa-user"></i>
