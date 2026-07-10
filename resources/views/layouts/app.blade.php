@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -160,7 +160,7 @@
                 </a>
             </li>
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Analytics</small>
+                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Analytics</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
@@ -183,7 +183,7 @@
                 </a>
             </li>
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Intelligence</small>
+                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Intelligence</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
@@ -206,7 +206,7 @@
                 </a>
             </li>
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">User</small>
+                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">User</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
@@ -216,7 +216,7 @@
 
             @if(auth()->check() && auth()->user()->role === 'admin')
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Admin</small>
+                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Admin</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('admin*') ? 'active' : '' }}" href="{{ route('admin.index') }}">
@@ -249,7 +249,7 @@
             <div class="d-flex align-items-center gap-3">
                 <div class="text-end d-none d-md-block">
                     <div class="fw-bold fs-6">{{ auth()->user()->name ?? 'User' }}</div>
-                    <div class="text-muted" style="font-size: 0.8rem;">{{ auth()->user()->email ?? '' }}</div>
+                    <div class="text-light opacity-75" style="font-size: 0.8rem;">{{ auth()->user()->email ?? '' }}</div>
                 </div>
                 <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                     <i class="fa-solid fa-user"></i>

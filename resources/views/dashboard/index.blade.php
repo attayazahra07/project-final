@@ -4,14 +4,13 @@
 
 @section('content')
 <div class="row g-4 mb-4">
-    <!-- Summary Cards -->
     <div class="col-md-3">
         <div class="glass-card d-flex align-items-center gap-3 border-start border-primary border-4">
             <div class="bg-primary bg-opacity-10 p-3 rounded text-primary fs-3">
                 <i class="fa-solid fa-earth-americas"></i>
             </div>
             <div>
-                <h6 class="text-muted mb-1">Monitored Countries</h6>
+                <h6 class="text-light opacity-75 mb-1">Monitored Countries</h6>
                 <h3 class="mb-0 fw-bold">{{ count($countries) }}</h3>
             </div>
         </div>
@@ -22,8 +21,8 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <h6 class="text-muted mb-1">High Risk Alerts</h6>
-                <h3 class="mb-0 fw-bold">3</h3>
+                <h6 class="text-light opacity-75 mb-1">High Risk Alerts</h6>
+                <h3 class="mb-0 fw-bold" id="highRiskCount">-</h3>
             </div>
         </div>
     </div>
@@ -33,8 +32,8 @@
                 <i class="fa-solid fa-ship"></i>
             </div>
             <div>
-                <h6 class="text-muted mb-1">Logistics Issues</h6>
-                <h3 class="mb-0 fw-bold">12</h3>
+                <h6 class="text-light opacity-75 mb-1">Ports Tracking</h6>
+                <h3 class="mb-0 fw-bold" id="portCount">-</h3>
             </div>
         </div>
     </div>
@@ -44,8 +43,29 @@
                 <i class="fa-solid fa-check-double"></i>
             </div>
             <div>
-                <h6 class="text-muted mb-1">Stable Regions</h6>
-                <h3 class="mb-0 fw-bold">5</h3>
+                <h6 class="text-light opacity-75 mb-1">Stable Regions</h6>
+                <h3 class="mb-0 fw-bold">-</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="glass-card">
+            <h5 class="mb-3 fw-bold">Global Port Distribution & Risk Map</h5>
+            <div id="map" style="height: 400px; border-radius: 0.5rem; background-color: #1e293b;"></div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card">
+            <h5 class="mb-3 fw-bold">Risk Factors (Indonesia)</h5>
+            <div style="height: 250px;">
+                <canvas id="riskChart"></canvas>
+            </div>
+            <div class="mt-4" id="currencyWidget">
+                <h6 class="fw-bold">Live Currency Rates (USD)</h6>
+                <p class="text-light opacity-75 small">Loading...</p>
             </div>
         </div>
     </div>
@@ -62,11 +82,9 @@
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle bg-transparent mb-0">
                     <thead>
-                        <tr class="text-muted">
+                        <tr class="text-light opacity-75">
                             <th class="bg-transparent border-bottom border-secondary">Country</th>
-                            <th class="bg-transparent border-bottom border-secondary">Total Risk</th>
                             <th class="bg-transparent border-bottom border-secondary">Currency</th>
-                            <th class="bg-transparent border-bottom border-secondary">Weather</th>
                             <th class="bg-transparent border-bottom border-secondary">Action</th>
                         </tr>
                     </thead>
@@ -81,13 +99,9 @@
                                     <span class="fw-bold">{{ $c->name }}</span>
                                 </div>
                             </td>
-                            <td class="bg-transparent border-bottom border-secondary border-opacity-25">
-                                <span class="badge bg-success bg-opacity-25 text-success border border-success">Low (24%)</span>
-                            </td>
                             <td class="bg-transparent border-bottom border-secondary border-opacity-25">{{ $c->currency_code }}</td>
-                            <td class="bg-transparent border-bottom border-secondary border-opacity-25">Clear</td>
                             <td class="bg-transparent border-bottom border-secondary border-opacity-25">
-                                <button class="btn btn-sm btn-primary">Details</button>
+                                <button class="btn btn-sm btn-primary" onclick="loadCountryData('{{ $c->code }}')">Analyze</button>
                             </td>
                         </tr>
                         @endforeach
@@ -99,34 +113,148 @@
 
     <!-- Quick News -->
     <div class="col-md-4">
-        <div class="glass-card">
+        <div class="glass-card" id="newsWidget">
             <h5 class="mb-4 fw-bold">Latest Intelligence</h5>
-            
-            <div class="d-flex gap-3 mb-3 pb-3 border-bottom border-secondary border-opacity-25">
-                <div class="text-danger mt-1"><i class="fa-solid fa-circle-exclamation"></i></div>
-                <div>
-                    <h6 class="mb-1 fw-bold fs-6">Port Strike in Germany</h6>
-                    <p class="text-muted mb-0 small">Major logistics delay expected in Hamburg port due to labor strike.</p>
-                </div>
-            </div>
-            
-            <div class="d-flex gap-3 mb-3 pb-3 border-bottom border-secondary border-opacity-25">
-                <div class="text-warning mt-1"><i class="fa-solid fa-cloud-bolt"></i></div>
-                <div>
-                    <h6 class="mb-1 fw-bold fs-6">Typhoon Warning JP</h6>
-                    <p class="text-muted mb-0 small">Approaching typhoon may disrupt East Asia shipping routes.</p>
-                </div>
-            </div>
-            
-            <div class="d-flex gap-3">
-                <div class="text-success mt-1"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                <div>
-                    <h6 class="mb-1 fw-bold fs-6">US Inflation Drops</h6>
-                    <p class="text-muted mb-0 small">Economic stability improves, lowering financial risk score.</p>
-                </div>
-            </div>
-            
+            <div class="text-center text-light opacity-75"><i class="fa-solid fa-spinner fa-spin"></i> Loading news...</div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // 1. Initialize Map
+    const map = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
+
+    let riskChart;
+
+    // Fetch Ports and add to map
+    fetch('/api/ports')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('portCount').innerText = data.length;
+            data.forEach(port => {
+                L.circleMarker([port.lat, port.lng], {
+                    radius: 4,
+                    fillColor: '#3b82f6',
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map)
+                .bindPopup(`<b>${port.port_name}</b><br>${port.country_name}`);
+            });
+        });
+
+    // Default Load Indonesia Data
+    loadCountryData('ID');
+
+    function loadCountryData(countryCode) {
+        // Fetch Risk
+        fetch(`/api/risk?country=${countryCode}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) return;
+                
+                // Update Chart
+                const ctx = document.getElementById('riskChart').getContext('2d');
+                if(riskChart) riskChart.destroy();
+                
+                riskChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Weather', 'Inflation', 'News Sentiment', 'Currency Volatility'],
+                        datasets: [{
+                            label: `Risk Score (${data.risk_label})`,
+                            data: [
+                                data.breakdown.weather, 
+                                data.breakdown.inflation, 
+                                data.breakdown.news, 
+                                data.breakdown.currency
+                            ],
+                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                            borderColor: '#ef4444',
+                            pointBackgroundColor: '#ef4444',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#ef4444'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                pointLabels: { color: '#94a3b8', font: { size: 11 } },
+                                ticks: { display: false, min: 0, max: 100 }
+                            }
+                        },
+                        plugins: { legend: { labels: { color: '#f8fafc' } } }
+                    }
+                });
+            });
+
+        // Fetch News
+        fetch(`/api/news?country=${countryCode}`)
+            .then(res => res.json())
+            .then(data => {
+                const widget = document.getElementById('newsWidget');
+                widget.innerHTML = `<h5 class="mb-4 fw-bold">Intelligence (${countryCode})</h5>`;
+                
+                if(data.news.length === 0) {
+                    widget.innerHTML += '<p class="text-muted small">No recent news found.</p>';
+                    return;
+                }
+                
+                data.news.forEach(article => {
+                    const title = article.title.length > 50 ? article.title.substring(0, 50) + '...' : article.title;
+                    const desc = article.description ? (article.description.length > 80 ? article.description.substring(0, 80) + '...' : article.description) : '';
+                    const date = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Recent';
+                    
+                    widget.innerHTML += `
+                        <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-25">
+                            <h6 class="mb-1 fw-bold fs-6"><a href="${article.url}" target="_blank" class="text-white text-decoration-none hover-primary">${title}</a></h6>
+                            <p class="text-muted mb-1 small" style="font-size: 0.75rem;">${desc}</p>
+                            <div class="d-flex justify-content-between text-muted" style="font-size: 0.7rem;">
+                                <span><i class="fa-solid fa-building"></i> ${article.source.name}</span>
+                                <span><i class="fa-regular fa-calendar"></i> ${date}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // Show overall sentiment
+                const senti = data.sentiment;
+                let sentiColor = senti.positive > senti.negative ? 'text-success' : 'text-danger';
+                widget.innerHTML += `
+                    <div class="mt-3 text-center small">
+                        Analysis: <span class="${sentiColor} fw-bold">Pos ${senti.positive}% | Neg ${senti.negative}%</span>
+                    </div>
+                `;
+            });
+    }
+
+    // Fetch Currency
+    fetch('/api/currency')
+        .then(res => res.json())
+        .then(data => {
+            const w = document.getElementById('currencyWidget');
+            let html = `<h6 class="fw-bold">Live Currency Rates (USD)</h6><div class="d-flex flex-wrap gap-2 mt-2">`;
+            for (const [curr, rate] of Object.entries(data.rates)) {
+                if(rate) {
+                    html += `<span class="badge bg-secondary bg-opacity-50 border border-secondary">${curr}: ${parseFloat(rate).toFixed(2)}</span>`;
+                }
+            }
+            html += `</div><div class="text-muted small mt-2" style="font-size: 0.7rem;">Last updated: ${new Date(data.timestamp).toLocaleString()}</div>`;
+            w.innerHTML = html;
+        });
+
+</script>
+@endpush

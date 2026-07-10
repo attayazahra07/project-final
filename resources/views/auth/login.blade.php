@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,7 +56,7 @@
     <div class="login-card">
         <div class="text-center mb-4">
             <h3 class="text-primary fw-bold"><i class="fa-solid fa-globe"></i> TayaChain</h3>
-            <p class="text-muted small">Supply Chain Risk Intelligence</p>
+            <p class="text-light opacity-75 small">Supply Chain Risk Intelligence</p>
         </div>
 
         @if($errors->any())

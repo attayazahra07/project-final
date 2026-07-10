@@ -31,24 +31,57 @@ class ApiController extends Controller
         return response()->json($query->limit(500)->get());
     }
 
-    public function getRisk(Request $request, RiskEngine $engine)
+    public function getRisk(Request $request, RiskEngine $engine, \App\Services\ExternalApiService $api)
     {
-        // Mock data for Phase 3 (Will connect to external API in Phase 4)
-        $country_id = $request->query('country_id', 1); // Default ID
+        $countryCode = $request->query('country', 'ID');
         
-        // Generate pseudo-random factors based on country ID for testing
+        $country = DB::table('countries')->where('code', $countryCode)->first();
+        if (!$country) {
+            return response()->json(['error' => 'Country not found'], 404);
+        }
+
+        // Fetch Real Weather
+        $weatherData = $api->getWeather($country->lat, $country->lng);
+        // Translate weather code/temp to a risk score (0-100)
+        // E.g., if windspeed > 30 it's risky, if temp very high/low it's risky
+        $weatherRisk = 20; // Default Low
+        if ($weatherData) {
+            $wind = $weatherData['windspeed'] ?? 0;
+            $weatherRisk = min(100, $wind * 2); // Simple heuristic: higher wind = higher risk
+        }
+
+        // Fetch Real Currency
+        $rates = $api->getExchangeRates();
+        $currencyRisk = 30; // Default
+        if ($rates && isset($rates[$country->currency_code])) {
+            // For a real risk model, you'd compare historical volatility. 
+            // For now, if the API works, we just assign a pseudo-calculated score based on the rate magnitude
+            $rate = $rates[$country->currency_code];
+            $currencyRisk = min(100, ($rate > 1000 ? 50 : 20)); // Arbitrary for demo
+        }
+
+        // News Sentiment 
+        $newsArticles = $api->getNews($country->name);
+        $newsRisk = 40; // Default
+        if (!empty($newsArticles)) {
+            $analyzer = new SentimentAnalyzer();
+            $texts = collect($newsArticles)->pluck('description')->join(' ');
+            $sentiment = $analyzer->analyze($texts);
+            $newsRisk = $sentiment['negative']; // Directly use negative % as risk
+        }
+        
         $factors = [
-            'weather' => rand(10, 80),
-            'inflation' => rand(20, 70),
-            'news' => rand(30, 90),
-            'currency' => rand(10, 50),
+            'weather' => $weatherRisk,
+            'inflation' => rand(20, 70), // WorldBank not fully integrated yet, use dummy
+            'news' => $newsRisk,
+            'currency' => $currencyRisk,
         ];
         
         $riskData = $engine->calculateScore($factors);
         
-        // Save to DB (mocking the persistence)
+        // Save to DB
         DB::table('risk_scores')->updateOrInsert(
-            ['country_id' => $country_id],
+            ['country_id' => $country->id],
             [
                 'weather_risk' => $factors['weather'],
                 'inflation_risk' => $factors['inflation'],
@@ -63,33 +96,56 @@ class ApiController extends Controller
         return response()->json($riskData);
     }
 
-    public function getNews(Request $request, SentimentAnalyzer $analyzer)
+    public function getNews(Request $request, SentimentAnalyzer $analyzer, \App\Services\ExternalApiService $api)
     {
-        // Mock news data
-        $sampleText = "The economic growth is stable and positive, despite some minor delay and risk in shipping.";
+        $countryCode = $request->query('country', 'ID');
+        $country = DB::table('countries')->where('code', $countryCode)->first();
         
-        $sentiment = $analyzer->analyze($sampleText);
+        $articles = $api->getNews($country->name ?? 'Indonesia');
+        
+        if (empty($articles)) {
+            $articles = [[
+                'title' => 'No recent news found',
+                'description' => 'Unable to fetch latest news for this region.',
+                'source' => ['name' => 'System']
+            ]];
+            $sentiment = ['positive' => 0, 'negative' => 0, 'neutral' => 100];
+        } else {
+            $texts = collect($articles)->pluck('description')->join(' ');
+            $sentiment = $analyzer->analyze($texts);
+        }
         
         return response()->json([
-            'news' => [
-                'title' => 'Economic Update',
-                'description' => $sampleText,
-                'source' => 'Global Finance',
-            ],
+            'news' => $articles,
             'sentiment' => $sentiment
         ]);
     }
 
-    public function getCurrency()
+    public function getCurrency(\App\Services\ExternalApiService $api)
     {
-        // Mock Currency Data
+        $rates = $api->getExchangeRates();
+        if (!$rates) {
+            // Fallback
+            return response()->json([
+                'base' => 'USD',
+                'rates' => [
+                    'IDR' => 15000 + rand(-100, 100),
+                    'EUR' => 0.92,
+                    'GBP' => 0.79,
+                    'JPY' => 145,
+                ],
+                'timestamp' => now()->toIso8601String()
+            ]);
+        }
+
         return response()->json([
             'base' => 'USD',
             'rates' => [
-                'IDR' => 15000 + rand(-100, 100),
-                'EUR' => 0.92 + (rand(-10, 10) / 1000),
-                'GBP' => 0.79 + (rand(-10, 10) / 1000),
-                'JPY' => 145 + rand(-5, 5),
+                'IDR' => $rates['IDR'] ?? null,
+                'EUR' => $rates['EUR'] ?? null,
+                'GBP' => $rates['GBP'] ?? null,
+                'JPY' => $rates['JPY'] ?? null,
+                'CNY' => $rates['CNY'] ?? null,
             ],
             'timestamp' => now()->toIso8601String()
         ]);
