@@ -73,7 +73,7 @@
 
 <div class="row g-4">
     <!-- Watchlist Quick View -->
-    <div class="col-md-8">
+    <div class="col-md-8" id="watchlist">
         <div class="glass-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="mb-0 fw-bold">My Watchlist</h5>

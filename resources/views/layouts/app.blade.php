@@ -155,7 +155,7 @@
         </div>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
+                <a class="nav-link {{ request()->is('/') && !request()->has('anchor') ? 'active' : '' }}" href="{{ url('/') }}">
                     <i class="fa-solid fa-house"></i> Dashboard
                 </a>
             </li>
@@ -163,22 +163,22 @@
                 <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Analytics</small>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#map') }}">
                     <i class="fa-solid fa-earth-americas"></i> Global Country
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#riskChart') }}">
                     <i class="fa-solid fa-shield-halved"></i> Risk Scoring
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#map') }}">
                     <i class="fa-solid fa-cloud-bolt"></i> Weather Monitor
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#currencyWidget') }}">
                     <i class="fa-solid fa-money-bill-trend-up"></i> Currency Impact
                 </a>
             </li>
@@ -186,17 +186,17 @@
                 <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Intelligence</small>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#newsWidget') }}">
                     <i class="fa-solid fa-newspaper"></i> News Feed
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#map') }}">
                     <i class="fa-solid fa-ship"></i> Ports & Logistics
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#riskChart') }}">
                     <i class="fa-solid fa-chart-line"></i> Data Visualization
                 </a>
             </li>
@@ -209,7 +209,7 @@
                 <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">User</small>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url('/#watchlist') }}">
                     <i class="fa-solid fa-star"></i> My Watchlist
                 </a>
             </li>
