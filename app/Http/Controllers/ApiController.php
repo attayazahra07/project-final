@@ -93,7 +93,22 @@ class ApiController extends Controller
             ]
         );
         
-        return response()->json($riskData);
+        return response()->json([
+            'total_score' => $riskData['total_score'],
+            'risk_label' => $riskData['risk_label'],
+            'breakdown' => $riskData['breakdown'],
+            'raw_data' => [
+                'weather' => $weatherData ? [
+                    'temp' => $weatherData['temperature'] ?? null,
+                    'windspeed' => $weatherData['windspeed'] ?? null,
+                    'weathercode' => $weatherData['weathercode'] ?? null,
+                ] : null,
+                'currency' => [
+                    'code' => $country->currency_code,
+                    'rate' => $rates[$country->currency_code] ?? null
+                ]
+            ]
+        ]);
     }
 
     public function getNews(Request $request, SentimentAnalyzer $analyzer, \App\Services\ExternalApiService $api)

@@ -21,8 +21,8 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <h6 class="text-light opacity-75 mb-1">High Risk Alerts</h6>
-                <h3 class="mb-0 fw-bold" id="highRiskCount">-</h3>
+                <h6 class="text-light opacity-75 mb-1">Country Risk Status</h6>
+                <h3 class="mb-0 fw-bold" id="countryRiskVal">-</h3>
             </div>
         </div>
     </div>
@@ -32,7 +32,7 @@
                 <i class="fa-solid fa-ship"></i>
             </div>
             <div>
-                <h6 class="text-light opacity-75 mb-1">Ports Tracking</h6>
+                <h6 class="text-light opacity-75 mb-1">Ports in Country</h6>
                 <h3 class="mb-0 fw-bold" id="portCount">-</h3>
             </div>
         </div>
@@ -40,11 +40,11 @@
     <div class="col-md-3">
         <div class="glass-card d-flex align-items-center gap-3 border-start border-success border-4">
             <div class="bg-success bg-opacity-10 p-3 rounded text-success fs-3">
-                <i class="fa-solid fa-check-double"></i>
+                <i class="fa-solid fa-cloud-bolt"></i>
             </div>
             <div>
-                <h6 class="text-light opacity-75 mb-1">Stable Regions</h6>
-                <h3 class="mb-0 fw-bold">-</h3>
+                <h6 class="text-light opacity-75 mb-1">Local Wind & Temp</h6>
+                <h3 class="mb-0 fw-bold" id="localWeatherVal">-</h3>
             </div>
         </div>
     </div>
@@ -72,8 +72,8 @@
                 <canvas id="riskChart"></canvas>
             </div>
             <div class="mt-4" id="currencyWidget">
-                <h6 class="fw-bold">Live Currency Rates (USD)</h6>
-                <p class="text-light opacity-75 small">Loading...</p>
+                <h6 class="fw-bold">Local Currency Exchange</h6>
+                <p class="text-light opacity-75 mb-0" id="currencyRateText">Loading...</p>
             </div>
         </div>
     </div>
@@ -211,6 +211,30 @@
                 const countryText = selector.options[selector.selectedIndex]?.text || countryCode;
                 document.getElementById('riskChartTitle').innerText = `Risk Profile: ${countryText}`;
 
+                // Update Top Cards
+                document.getElementById('countryRiskVal').innerText = `${data.total_score}% (${data.risk_label})`;
+                
+                // Update Weather Card
+                if (data.raw_data && data.raw_data.weather) {
+                    const wind = data.raw_data.weather.windspeed;
+                    const temp = data.raw_data.weather.temp;
+                    document.getElementById('localWeatherVal').innerText = `${wind} km/h (${temp}°C)`;
+                } else {
+                    document.getElementById('localWeatherVal').innerText = 'N/A';
+                }
+
+                // Update Currency Widget
+                if (data.raw_data && data.raw_data.currency && data.raw_data.currency.rate) {
+                    const code = data.raw_data.currency.code;
+                    const rate = parseFloat(data.raw_data.currency.rate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    document.getElementById('currencyRateText').innerHTML = `
+                        <span class="fs-5 fw-bold text-success">1 USD = ${rate} ${code}</span>
+                        <br><span class="text-light opacity-50 small">Risk weight contribution: ${data.breakdown.currency}%</span>
+                    `;
+                } else {
+                    document.getElementById('currencyRateText').innerText = 'No currency data available';
+                }
+
                 // Update Chart
                 const ctx = document.getElementById('riskChart').getContext('2d');
                 if(riskChart) riskChart.destroy();
@@ -291,20 +315,6 @@
             });
     }
 
-    // Fetch Currency
-    fetch('/api/currency')
-        .then(res => res.json())
-        .then(data => {
-            const w = document.getElementById('currencyWidget');
-            let html = `<h6 class="fw-bold">Live Currency Rates (USD)</h6><div class="d-flex flex-wrap gap-2 mt-2">`;
-            for (const [curr, rate] of Object.entries(data.rates)) {
-                if(rate) {
-                    html += `<span class="badge bg-secondary bg-opacity-50 border border-secondary">${curr}: ${parseFloat(rate).toFixed(2)}</span>`;
-                }
-            }
-            html += `</div><div class="text-muted small mt-2" style="font-size: 0.7rem;">Last updated: ${new Date(data.timestamp).toLocaleString()}</div>`;
-            w.innerHTML = html;
-        });
 
 </script>
 @endpush
