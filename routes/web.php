@@ -10,6 +10,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/compare', [DashboardController::class, 'compare'])->name('compare');
     Route::post('/watchlist/toggle', [\App\Http\Controllers\WatchlistController::class, 'toggle']);
     
     // Admin Routes

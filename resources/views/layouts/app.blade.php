@@ -201,7 +201,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('compare') ? 'active' : '' }}" href="{{ route('compare') }}">
                     <i class="fa-solid fa-scale-balanced"></i> Compare Countries
                 </a>
             </li>

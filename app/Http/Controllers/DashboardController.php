@@ -12,4 +12,10 @@ class DashboardController extends Controller
         $countries = DB::table('countries')->get();
         return view('dashboard.index', compact('countries'));
     }
+
+    public function compare()
+    {
+        $countries = DB::table('countries')->get();
+        return view('dashboard.compare', compact('countries'));
+    }
 }
