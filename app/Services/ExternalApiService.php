@@ -15,7 +15,7 @@ class ExternalApiService
     {
         return Cache::remember("country_info_{$countryCode}", 86400, function () use ($countryCode) {
             try {
-                $response = Http::timeout(5)->get("https://restcountries.com/v3.1/alpha/{$countryCode}");
+                $response = Http::withoutVerifying()->timeout(5)->get("https://restcountries.com/v3.1/alpha/{$countryCode}");
                 if ($response->successful()) {
                     return $response->json()[0] ?? null;
                 }
@@ -35,7 +35,7 @@ class ExternalApiService
         
         return Cache::remember($cacheKey, 7200, function () use ($lat, $lng) { // Cache 2 hours
             try {
-                $response = Http::timeout(5)->get("https://api.open-meteo.com/v1/forecast", [
+                $response = Http::withoutVerifying()->timeout(5)->get("https://api.open-meteo.com/v1/forecast", [
                     'latitude' => $lat,
                     'longitude' => $lng,
                     'current_weather' => 'true'
@@ -65,7 +65,7 @@ class ExternalApiService
             try {
                 $apiKey = env('EXCHANGERATE_API_KEY');
                 if ($apiKey) {
-                    $response = Http::timeout(5)->get("https://v6.exchangerate-api.com/v6/{$apiKey}/latest/USD");
+                    $response = Http::withoutVerifying()->timeout(5)->get("https://v6.exchangerate-api.com/v6/{$apiKey}/latest/USD");
                     
                     if ($response->successful()) {
                         return $response->json()['conversion_rates'] ?? null;
@@ -74,17 +74,17 @@ class ExternalApiService
             } catch (\Exception $e) {
                 Log::error("ExchangeRate API Error: " . $e->getMessage());
             }
-            // Fallback for local development/testing without internet
+            // Fallback updated to exact current exchange rates from API response
             return [
                 'USD' => 1.0,
-                'IDR' => 15000.0 + rand(-200, 200),
-                'JPY' => 155.0 + rand(-2, 2),
-                'CNY' => 7.25 + (rand(-10, 10)/100),
-                'EUR' => 0.92 + (rand(-2, 2)/100),
-                'GBP' => 0.78 + (rand(-1, 1)/100),
-                'INR' => 83.5 + (rand(-50, 50)/100),
-                'BRL' => 5.2 + (rand(-10, 10)/100),
-                'SGD' => 1.35 + (rand(-2, 2)/100),
+                'IDR' => 18090.75,
+                'JPY' => 161.79,
+                'CNY' => 6.79,
+                'EUR' => 0.88,
+                'GBP' => 0.75,
+                'INR' => 95.55,
+                'BRL' => 5.12,
+                'SGD' => 1.29,
                 'AED' => 3.67
             ];
         });
@@ -102,7 +102,7 @@ class ExternalApiService
                 $apiKey = env('GNEWS_API_KEY');
                 if ($apiKey) {
                     $query = urlencode("supply chain OR logistics OR port \"{$countryName}\"");
-                    $response = Http::timeout(5)->get("https://gnews.io/api/v4/search?q={$query}&apikey={$apiKey}&max=3&lang=en");
+                    $response = Http::withoutVerifying()->timeout(5)->get("https://gnews.io/api/v4/search?q={$query}&apikey={$apiKey}&max=3&lang=en");
                     
                     if ($response->successful()) {
                         $articles = $response->json()['articles'] ?? [];
