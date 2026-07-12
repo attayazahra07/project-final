@@ -65,7 +65,7 @@
             <div id="map" style="height: 400px; border-radius: 0.5rem; background-color: #1e293b;"></div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4" id="riskChartCard">
         <div class="glass-card">
             <h5 class="mb-3 fw-bold" id="riskChartTitle">Risk Profile: Indonesia (ID)</h5>
             <div style="height: 250px;">

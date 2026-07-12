@@ -168,7 +168,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url('/#riskChart') }}">
+                <a class="nav-link" href="{{ url('/#riskChartCard') }}">
                     <i class="fa-solid fa-shield-halved"></i> Risk Scoring
                 </a>
             </li>
@@ -196,7 +196,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url('/#riskChart') }}">
+                <a class="nav-link" href="{{ url('/#riskChartCard') }}">
                     <i class="fa-solid fa-chart-line"></i> Data Visualization
                 </a>
             </li>
@@ -274,6 +274,56 @@
         // Sidebar Toggle for Mobile
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('show');
+        });
+
+        // Smooth scroll to element helper
+        function scrollToHash(hash) {
+            if (!hash) return;
+            const target = document.querySelector(hash);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Intercept hash link clicks
+        document.addEventListener('click', function(e) {
+            const anchor = e.target.closest('a');
+            if (!anchor) return;
+            
+            const href = anchor.getAttribute('href');
+            if (!href) return;
+            
+            // Check if it is a hash link for the current page
+            const currentUrl = window.location.pathname;
+            const hashIndex = href.indexOf('#');
+            
+            if (hashIndex !== -1) {
+                const linkPath = href.substring(0, hashIndex);
+                const hash = href.substring(hashIndex);
+                
+                // If it points to the current path or if current path is '/' and linkPath is empty/URL root
+                const isCurrentPage = linkPath === '' || 
+                                     linkPath === '/' && currentUrl === '/' || 
+                                     window.location.origin + linkPath === window.location.origin + currentUrl;
+                                     
+                if (isCurrentPage) {
+                    const target = document.querySelector(hash);
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        history.pushState(null, null, hash);
+                    }
+                }
+            }
+        });
+
+        // Handle scroll on initial page load (with a delay for ajax content rendering)
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash) {
+                setTimeout(() => {
+                    scrollToHash(window.location.hash);
+                }, 800); // 800ms delay to ensure weather/charts/news are loaded
+            }
         });
     </script>
     @stack('scripts')
