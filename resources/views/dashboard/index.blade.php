@@ -53,13 +53,21 @@
 <div class="row g-4 mb-4">
     <div class="col-md-8">
         <div class="glass-card">
-            <h5 class="mb-3 fw-bold">Global Port Distribution & Risk Map</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-bold">Global Port Distribution & Risk Map</h5>
+                <select id="mapCountrySelect" class="form-select bg-dark text-white border-secondary w-auto">
+                    <option value="">-- Select Country --</option>
+                    @foreach($countries as $c)
+                        <option value="{{ $c->code }}" data-lat="{{ $c->lat }}" data-lng="{{ $c->lng }}">{{ $c->name }} ({{ $c->code }})</option>
+                    @endforeach
+                </select>
+            </div>
             <div id="map" style="height: 400px; border-radius: 0.5rem; background-color: #1e293b;"></div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="glass-card">
-            <h5 class="mb-3 fw-bold">Risk Factors (Indonesia)</h5>
+            <h5 class="mb-3 fw-bold" id="riskChartTitle">Risk Profile: Indonesia (ID)</h5>
             <div style="height: 250px;">
                 <canvas id="riskChart"></canvas>
             </div>
@@ -131,36 +139,78 @@
         maxZoom: 20
     }).addTo(map);
 
+    const markersGroup = L.layerGroup().addTo(map);
     let riskChart;
 
-    // Fetch Ports and add to map
-    fetch('/api/ports')
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('portCount').innerText = data.length;
-            data.forEach(port => {
-                L.circleMarker([port.lat, port.lng], {
-                    radius: 4,
-                    fillColor: '#3b82f6',
-                    color: '#fff',
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }).addTo(map)
-                .bindPopup(`<b>${port.port_name}</b><br>${port.country_name}`);
+    // Function to load ports and render them
+    function loadPorts(countryCode = '') {
+        let url = '/api/ports';
+        if (countryCode) {
+            url += `?country=${countryCode}`;
+        }
+        
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                markersGroup.clearLayers();
+                document.getElementById('portCount').innerText = data.length;
+                data.forEach(port => {
+                    L.circleMarker([port.lat, port.lng], {
+                        radius: 5,
+                        fillColor: '#3b82f6',
+                        color: '#fff',
+                        weight: 1.5,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(markersGroup)
+                    .bindPopup(`<b>${port.port_name}</b><br>${port.country_name}`);
+                });
             });
-        });
+    }
+
+    // Dropdown change listener
+    document.getElementById('mapCountrySelect').addEventListener('change', function() {
+        const code = this.value;
+        if (!code) {
+            map.setView([20, 0], 2);
+            loadPorts();
+            return;
+        }
+
+        const selectedOption = this.options[this.selectedIndex];
+        const lat = parseFloat(selectedOption.getAttribute('data-lat'));
+        const lng = parseFloat(selectedOption.getAttribute('data-lng'));
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+            map.flyTo([lat, lng], 5);
+        }
+
+        loadCountryData(code);
+    });
 
     // Default Load Indonesia Data
     loadCountryData('ID');
 
     function loadCountryData(countryCode) {
+        // Sync Selector Dropdown
+        const selector = document.getElementById('mapCountrySelect');
+        if (selector.value !== countryCode) {
+            selector.value = countryCode;
+        }
+
+        // Fetch ports for this country
+        loadPorts(countryCode);
+
         // Fetch Risk
         fetch(`/api/risk?country=${countryCode}`)
             .then(res => res.json())
             .then(data => {
                 if(data.error) return;
                 
+                // Update Risk Chart Title
+                const countryText = selector.options[selector.selectedIndex]?.text || countryCode;
+                document.getElementById('riskChartTitle').innerText = `Risk Profile: ${countryText}`;
+
                 // Update Chart
                 const ctx = document.getElementById('riskChart').getContext('2d');
                 if(riskChart) riskChart.destroy();
