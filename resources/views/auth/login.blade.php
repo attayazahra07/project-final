@@ -55,7 +55,7 @@
 
     <div class="login-card">
         <div class="text-center mb-4">
-            <h3 class="text-primary fw-bold"><i class="fa-solid fa-globe"></i> TayaChain</h3>
+            <h3 class="text-primary fw-bold"><i class="fa-solid fa-globe"></i> Global Chain</h3>
             <p class="text-light opacity-75 small">Supply Chain Risk Intelligence</p>
         </div>
 

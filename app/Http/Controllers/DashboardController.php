@@ -9,13 +9,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $countries = DB::table('countries')->get();
+        $countries = DB::table('countries')->orderBy('name')->get();
         return view('dashboard.index', compact('countries'));
     }
 
     public function compare()
     {
-        $countries = DB::table('countries')->get();
+        $countries = DB::table('countries')->orderBy('name')->get();
         return view('dashboard.compare', compact('countries'));
     }
 }

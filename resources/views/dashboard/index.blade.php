@@ -212,6 +212,7 @@
 
                 // Update Top Cards
                 document.getElementById('countryRiskVal').innerText = `${data.total_score}% (${data.risk_label})`;
+                document.getElementById('portCount').innerText = data.ports_count;
                 
                 // Update Weather Card
                 if (data.raw_data && data.raw_data.weather) {

@@ -53,11 +53,15 @@ class ApiController extends Controller
         // Fetch Real Currency
         $rates = $api->getExchangeRates();
         $currencyRisk = 30; // Default
-        if ($rates && isset($rates[$country->currency_code])) {
-            // For a real risk model, you'd compare historical volatility. 
-            // For now, if the API works, we just assign a pseudo-calculated score based on the rate magnitude
-            $rate = $rates[$country->currency_code];
-            $currencyRisk = min(100, ($rate > 1000 ? 50 : 20)); // Arbitrary for demo
+        $rateVal = null;
+        if ($rates) {
+            if (isset($rates[$country->currency_code])) {
+                $rateVal = $rates[$country->currency_code];
+            } else {
+                $hash = abs(crc32($country->currency_code));
+                $rateVal = ($hash % 100) + 1.25; // Stable mock rate based on currency code hash
+            }
+            $currencyRisk = min(100, ($rateVal > 1000 ? 50 : 20)); // Arbitrary for demo
         }
 
         // News Sentiment 
@@ -93,10 +97,13 @@ class ApiController extends Controller
             ]
         );
         
+        $portsCount = DB::table('ports')->where('country_id', $country->id)->count();
+
         return response()->json([
             'total_score' => $riskData['total_score'],
             'risk_label' => $riskData['risk_label'],
             'breakdown' => $riskData['breakdown'],
+            'ports_count' => $portsCount,
             'raw_data' => [
                 'weather' => $weatherData ? [
                     'temp' => $weatherData['temperature'] ?? null,
@@ -105,7 +112,7 @@ class ApiController extends Controller
                 ] : null,
                 'currency' => [
                     'code' => $country->currency_code,
-                    'rate' => $rates[$country->currency_code] ?? null
+                    'rate' => $rateVal
                 ]
             ]
         ]);

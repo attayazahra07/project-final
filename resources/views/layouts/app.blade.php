@@ -150,7 +150,7 @@
     <nav id="sidebar">
         <div class="sidebar-header">
             <h4 class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-globe"></i> TayaChain
+                <i class="fa-solid fa-globe"></i> Global Chain
             </h4>
         </div>
         <ul class="nav flex-column mt-3">
