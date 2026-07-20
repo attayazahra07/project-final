@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +10,8 @@
     
     <style>
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background: #0b5394;
+            color: #ffffff;
             font-family: 'Inter', sans-serif;
             height: 100vh;
             display: flex;
@@ -20,32 +20,32 @@
         }
 
         .login-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid #cbd5e1;
             border-radius: 1rem;
             padding: 2.5rem;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.15), 0 8px 10px -6px rgba(37, 99, 235, 0.1);
         }
 
         .form-control {
-            background-color: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
         }
 
         .form-control:focus {
-            background-color: rgba(15, 23, 42, 0.8);
-            border-color: #3b82f6;
-            color: white;
-            box-shadow: none;
+            background-color: #ffffff;
+            border-color: #2563eb;
+            color: #0f172a;
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
         }
 
         .btn-primary {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
+            background-color: #2563eb;
+            border-color: #2563eb;
             padding: 0.6rem;
             font-weight: 600;
         }
@@ -56,7 +56,7 @@
     <div class="login-card">
         <div class="text-center mb-4">
             <h3 class="text-primary fw-bold"><i class="fa-solid fa-globe"></i> Global Chain</h3>
-            <p class="text-light opacity-75 small">Supply Chain Risk Intelligence</p>
+            <p class="text-secondary small">Supply Chain Risk Intelligence</p>
         </div>
 
         @if($errors->any())
@@ -77,9 +77,13 @@
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
             
-            <button type="submit" class="btn btn-primary w-100">Sign In</button>
+            <button type="submit" class="btn btn-primary w-100 mb-3">Sign In</button>
             
-            <div class="text-center mt-3">
+            <div class="text-center mb-3">
+                <span class="text-muted small">Don't have an account? <a href="{{ url('/register') }}" class="text-primary text-decoration-none">Sign Up</a></span>
+            </div>
+
+            <div class="text-center">
                 <small class="text-muted">Use <strong>admin@taya.com</strong> or <strong>user@taya.com</strong><br>(password: password)</small>
             </div>
         </form>

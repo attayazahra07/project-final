@@ -6,13 +6,13 @@
 <div class="row g-4 mb-4">
     <div class="col-md-12">
         <div class="glass-card">
-            <h5 class="fw-bold mb-4">Country Risk Comparison</h5>
-            <p class="text-light opacity-75 small">Compare the risk profiles, logistics parameters, and economic conditions of two countries side-by-side to make informed global supply chain decisions.</p>
+            <h5 class="fw-bold mb-4 text-dark">Country Risk Comparison</h5>
+            <p class="text-dark fw-bold small">Compare the risk profiles, logistics parameters, and economic conditions of two countries side-by-side to make informed global supply chain decisions.</p>
             
             <div class="row g-3">
                 <div class="col-md-5">
-                    <label for="countryA" class="form-label text-light opacity-75 small fw-bold">First Country</label>
-                    <select id="countryA" class="form-select bg-dark text-white border-secondary">
+                    <label for="countryA" class="form-label text-dark fw-bold small">First Country</label>
+                    <select id="countryA" class="form-select bg-white text-dark border-primary">
                         <option value="">-- Select First Country --</option>
                         @foreach($countries as $c)
                             <option value="{{ $c->code }}">{{ $c->name }} ({{ $c->code }})</option>
@@ -23,8 +23,8 @@
                     <button id="compareBtn" class="btn btn-primary w-100 py-2 fw-bold"><i class="fa-solid fa-scale-balanced"></i> Compare</button>
                 </div>
                 <div class="col-md-5">
-                    <label for="countryB" class="form-label text-light opacity-75 small fw-bold">Second Country</label>
-                    <select id="countryB" class="form-select bg-dark text-white border-secondary">
+                    <label for="countryB" class="form-label text-dark fw-bold small">Second Country</label>
+                    <select id="countryB" class="form-select bg-white text-dark border-primary">
                         <option value="">-- Select Second Country --</option>
                         @foreach($countries as $c)
                             <option value="{{ $c->code }}">{{ $c->name }} ({{ $c->code }})</option>
@@ -41,7 +41,7 @@
     <!-- Chart comparison -->
     <div class="col-md-8">
         <div class="glass-card">
-            <h5 class="fw-bold mb-4">Risk Breakdown Comparison</h5>
+            <h5 class="fw-bold mb-4 text-dark">Risk Breakdown Comparison</h5>
             <div style="height: 350px;">
                 <canvas id="comparisonChart"></canvas>
             </div>
@@ -51,17 +51,17 @@
     <!-- Side-by-side Summary -->
     <div class="col-md-4">
         <div class="glass-card">
-            <h5 class="fw-bold mb-4">Risk Summary</h5>
+            <h5 class="fw-bold mb-4 text-dark">Risk Summary</h5>
             
             <!-- Country A -->
             <div class="mb-4 p-3 rounded bg-secondary bg-opacity-10 border border-secondary border-opacity-25">
                 <h6 class="fw-bold text-primary mb-2" id="nameA">Country A</h6>
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-light opacity-75 small">Total Risk Score</span>
-                    <span class="fs-5 fw-bold" id="scoreA">0.00%</span>
+                    <span class="text-dark fw-bold small">Total Risk Score</span>
+                    <span class="fs-5 fw-bold text-dark" id="scoreA">0.00%</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-light opacity-75 small">Risk Classification</span>
+                    <span class="text-dark fw-bold small">Risk Classification</span>
                     <span class="badge bg-secondary" id="labelA">Low</span>
                 </div>
             </div>
@@ -70,17 +70,17 @@
             <div class="p-3 rounded bg-secondary bg-opacity-10 border border-secondary border-opacity-25">
                 <h6 class="fw-bold text-success mb-2" id="nameB">Country B</h6>
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-light opacity-75 small">Total Risk Score</span>
-                    <span class="fs-5 fw-bold" id="scoreB">0.00%</span>
+                    <span class="text-dark fw-bold small">Total Risk Score</span>
+                    <span class="fs-5 fw-bold text-dark" id="scoreB">0.00%</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-light opacity-75 small">Risk Classification</span>
+                    <span class="text-dark fw-bold small">Risk Classification</span>
                     <span class="badge bg-secondary" id="labelB">Low</span>
                 </div>
             </div>
 
             <div class="mt-4 text-center">
-                <p class="small text-light opacity-50" id="decisionVerdict">Comparing...</p>
+                <p class="small text-dark fw-bold" id="decisionVerdict">Comparing...</p>
             </div>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,11 +14,11 @@
     
     <style>
         :root {
-            --primary-bg: #0f172a;
-            --secondary-bg: #1e293b;
-            --accent-color: #3b82f6;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --primary-bg: #0b5394; /* Dominant Blue */
+            --secondary-bg: #ffffff; /* White cards/sidebar */
+            --accent-color: #3b82f6; /* Blue accent */
+            --text-main: #ffffff; /* White text for body */
+            --text-muted: #e2e8f0; /* Light text for body */
             --danger: #ef4444;
             --warning: #f59e0b;
             --success: #10b981;
@@ -39,20 +39,21 @@
             left: 0;
             width: var(--sidebar-width);
             height: 100vh;
-            background-color: var(--secondary-bg);
-            border-right: 1px solid rgba(255,255,255,0.05);
+            background-color: #bbdefb;
+            border-right: 1px solid rgba(0,0,0,0.1);
             z-index: 1000;
             transition: all 0.3s;
             overflow-y: auto;
+            color: #000000; /* Black text for sidebar */
         }
 
         .sidebar-header {
             padding: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
 
         .sidebar-header h4 {
-            color: var(--accent-color);
+            color: #000000;
             font-weight: 700;
             margin: 0;
             font-size: 1.25rem;
@@ -63,7 +64,7 @@
         }
 
         .nav-link {
-            color: var(--text-muted);
+            color: #000000; /* Black text for links */
             padding: 0.75rem 1.5rem;
             display: flex;
             align-items: center;
@@ -73,15 +74,16 @@
         }
 
         .nav-link:hover, .nav-link.active {
-            color: var(--text-main);
-            background: rgba(59, 130, 246, 0.1);
-            border-left-color: var(--accent-color);
+            color: #000000;
+            background: rgba(255, 255, 255, 0.4);
+            border-left-color: #000000;
         }
 
         .nav-link i {
             width: 20px;
             text-align: center;
             font-size: 1.1rem;
+            color: #000000;
         }
 
         /* Main Content Styles */
@@ -94,10 +96,11 @@
         .top-navbar {
             background-color: var(--secondary-bg);
             padding: 1rem 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #1e293b; /* Dark text for navbar */
         }
 
         .content-wrapper {
@@ -106,12 +109,14 @@
 
         /* Card Styles */
         .glass-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 1rem;
             padding: 1.5rem;
             height: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            color: #1e293b; /* Dark text inside cards */
         }
 
         /* Custom Scrollbar */
@@ -123,11 +128,11 @@
             background: var(--primary-bg);
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: rgba(255, 255, 255, 0.5);
         }
 
         @media (max-width: 768px) {
@@ -160,7 +165,7 @@
                 </a>
             </li>
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Analytics</small>
+                <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem;">Analytics</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ url('/#map') }}">
@@ -183,7 +188,7 @@
                 </a>
             </li>
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Intelligence</small>
+                <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem;">Intelligence</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ url('/#newsWidget') }}">
@@ -206,7 +211,7 @@
                 </a>
             </li>
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">User</small>
+                <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem;">User</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ url('/#watchlist') }}">
@@ -216,7 +221,7 @@
 
             @if(auth()->check() && auth()->user()->role === 'admin')
             <li class="nav-item mt-3 mb-1 px-4">
-                <small class="text-uppercase text-light opacity-75 fw-bold" style="font-size: 0.7rem;">Admin</small>
+                <small class="text-uppercase text-secondary fw-bold" style="font-size: 0.7rem;">Admin</small>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('admin*') ? 'active' : '' }}" href="{{ route('admin.index') }}">

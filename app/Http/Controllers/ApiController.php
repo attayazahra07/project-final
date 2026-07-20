@@ -123,7 +123,29 @@ class ApiController extends Controller
         $countryCode = $request->query('country', 'ID');
         $country = DB::table('countries')->where('code', $countryCode)->first();
         
+        $dbArticles = [];
+        if ($country) {
+            $dbArticles = DB::table('articles')
+                ->join('users', 'articles.user_id', '=', 'users.id')
+                ->where(function($q) use ($country) {
+                    $q->where('articles.country_id', $country->id)
+                      ->orWhereNull('articles.country_id');
+                })
+                ->select('articles.title', 'articles.body as description', 'users.name as author_name')
+                ->orderBy('articles.created_at', 'desc')
+                ->get()
+                ->map(function($art) {
+                    return [
+                        'title' => $art->title,
+                        'description' => $art->description,
+                        'source' => ['name' => $art->author_name ?: 'System']
+                    ];
+                })
+                ->toArray();
+        }
+
         $articles = $api->getNews($country->name ?? 'Indonesia');
+        $articles = array_merge($dbArticles, $articles);
         
         if (empty($articles)) {
             $articles = [[

@@ -5,7 +5,7 @@
 @section('content')
 <div class="glass-card">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="mb-0 fw-bold">User Management</h5>
+        <h5 class="mb-0 fw-bold text-dark">User Management</h5>
         <a href="{{ route('admin.index') }}" class="btn btn-sm btn-outline-secondary">Back to Admin</a>
     </div>
 
@@ -21,24 +21,24 @@
     @endif
 
     <div class="table-responsive">
-        <table class="table table-dark table-hover align-middle bg-transparent mb-0">
+        <table class="table table-hover align-middle bg-transparent mb-0">
             <thead>
-                <tr class="text-muted">
-                    <th class="bg-transparent border-bottom border-secondary">Name</th>
-                    <th class="bg-transparent border-bottom border-secondary">Email</th>
-                    <th class="bg-transparent border-bottom border-secondary">Role</th>
-                    <th class="bg-transparent border-bottom border-secondary">Action</th>
+                <tr>
+                    <th class="bg-transparent border-bottom border-primary fw-bold text-dark">Name</th>
+                    <th class="bg-transparent border-bottom border-primary fw-bold text-dark">Email</th>
+                    <th class="bg-transparent border-bottom border-primary fw-bold text-dark">Role</th>
+                    <th class="bg-transparent border-bottom border-primary fw-bold text-dark">Action</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($users as $u)
                 <tr>
-                    <td class="bg-transparent border-bottom border-secondary border-opacity-25">{{ $u->name }}</td>
-                    <td class="bg-transparent border-bottom border-secondary border-opacity-25">{{ $u->email }}</td>
-                    <td class="bg-transparent border-bottom border-secondary border-opacity-25">
+                    <td class="bg-transparent border-bottom border-primary border-opacity-25 fw-bold text-dark">{{ $u->name }}</td>
+                    <td class="bg-transparent border-bottom border-primary border-opacity-25 fw-bold text-dark">{{ $u->email }}</td>
+                    <td class="bg-transparent border-bottom border-primary border-opacity-25">
                         <span class="badge {{ $u->role === 'admin' ? 'bg-primary' : 'bg-secondary' }}">{{ ucfirst($u->role) }}</span>
                     </td>
-                    <td class="bg-transparent border-bottom border-secondary border-opacity-25">
+                    <td class="bg-transparent border-bottom border-primary border-opacity-25">
                         <form method="POST" action="{{ route('admin.users.toggle-role', $u->id) }}">
                             @csrf
                             <button type="submit" class="btn btn-sm {{ $u->role === 'admin' ? 'btn-outline-warning' : 'btn-outline-success' }}" {{ $u->id == auth()->id() ? 'disabled' : '' }}>

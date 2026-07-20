@@ -1,5 +1,24 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+.port-label {
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    border-radius: 0.25rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+    padding: 2px 6px !important;
+}
+.port-label::before {
+    border-right-color: rgba(15, 23, 42, 0.95) !important;
+}
+</style>
+@endpush
+
 @section('page_title', 'Global Risk Overview')
 
 @section('content')
@@ -10,7 +29,7 @@
                 <i class="fa-solid fa-earth-americas"></i>
             </div>
             <div>
-                <h6 class="text-light opacity-75 mb-1">Monitored Countries</h6>
+                <h6 class="text-secondary mb-1">Monitored Countries</h6>
                 <h3 class="mb-0 fw-bold">{{ count($countries) }}</h3>
             </div>
         </div>
@@ -21,7 +40,7 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <h6 class="text-light opacity-75 mb-1">Country Risk Status</h6>
+                <h6 class="text-secondary mb-1">Country Risk Status</h6>
                 <h3 class="mb-0 fw-bold" id="countryRiskVal">-</h3>
             </div>
         </div>
@@ -32,7 +51,7 @@
                 <i class="fa-solid fa-ship"></i>
             </div>
             <div>
-                <h6 class="text-light opacity-75 mb-1">Ports in Country</h6>
+                <h6 class="text-secondary mb-1">Ports in Country</h6>
                 <h3 class="mb-0 fw-bold" id="portCount">-</h3>
             </div>
         </div>
@@ -43,7 +62,7 @@
                 <i class="fa-solid fa-cloud-bolt"></i>
             </div>
             <div>
-                <h6 class="text-light opacity-75 mb-1">Local Wind & Temp</h6>
+                <h6 class="text-secondary mb-1">Local Wind & Temp</h6>
                 <h3 class="mb-0 fw-bold" id="localWeatherVal">-</h3>
             </div>
         </div>
@@ -55,10 +74,10 @@
         <div class="glass-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="mb-0 fw-bold">Global Port Distribution & Risk Map</h5>
-                <select id="mapCountrySelect" class="form-select bg-dark text-white border-secondary w-auto">
+                <select id="mapCountrySelect" class="form-select bg-white text-dark border-secondary w-auto">
                     <option value="">-- Select Country --</option>
                     @foreach($countries as $c)
-                        <option value="{{ $c->code }}" data-lat="{{ $c->lat }}" data-lng="{{ $c->lng }}">{{ $c->name }} ({{ $c->code }})</option>
+                        <option value="{{ $c->code }}" data-id="{{ $c->id }}" data-lat="{{ $c->lat }}" data-lng="{{ $c->lng }}">{{ $c->name }} ({{ $c->code }})</option>
                     @endforeach
                 </select>
             </div>
@@ -66,14 +85,19 @@
         </div>
     </div>
     <div class="col-md-4" id="riskChartCard">
-        <div class="glass-card">
-            <h5 class="mb-3 fw-bold" id="riskChartTitle">Risk Profile: Indonesia (ID)</h5>
+        <div class="glass-card" style="background-color: #bbdefb; border-color: rgba(0,0,0,0.1);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-bold text-dark" id="riskChartTitle">Risk Profile: Indonesia (ID)</h5>
+                <button id="toggleWatchlistBtn" class="btn btn-sm btn-outline-dark border-0" onclick="toggleWatchlist()" style="display: none;" title="Toggle Watchlist">
+                    <i class="fa-regular fa-star fa-lg" id="watchlistIcon"></i>
+                </button>
+            </div>
             <div style="height: 250px;">
                 <canvas id="riskChart"></canvas>
             </div>
             <div class="mt-4" id="currencyWidget">
-                <h6 class="fw-bold">Local Currency Exchange</h6>
-                <p class="text-light opacity-75 mb-0" id="currencyRateText">Loading...</p>
+                <h6 class="fw-bold text-dark">Local Currency Exchange</h6>
+                <p class="text-dark mb-0 fw-bold" id="currencyRateText">Loading...</p>
             </div>
         </div>
     </div>
@@ -84,35 +108,39 @@
     <div class="col-md-8" id="watchlist">
         <div class="glass-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="mb-0 fw-bold">My Watchlist</h5>
+                <h5 class="mb-0 fw-bold text-primary">My Watchlist</h5>
                 <button class="btn btn-sm btn-outline-primary">View All</button>
             </div>
             <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle bg-transparent mb-0">
+                <table class="table table-hover align-middle bg-transparent mb-0">
                     <thead>
-                        <tr class="text-light opacity-75">
-                            <th class="bg-transparent border-bottom border-secondary">Country</th>
-                            <th class="bg-transparent border-bottom border-secondary">Currency</th>
-                            <th class="bg-transparent border-bottom border-secondary">Action</th>
+                        <tr class="text-primary opacity-75">
+                            <th class="bg-transparent border-bottom border-primary">Country</th>
+                            <th class="bg-transparent border-bottom border-primary">Currency</th>
+                            <th class="bg-transparent border-bottom border-primary">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($countries->take(5) as $c)
-                        <tr>
-                            <td class="bg-transparent border-bottom border-secondary border-opacity-25">
+                        @forelse($watchlistCountries as $c)
+                        <tr class="text-primary">
+                            <td class="bg-transparent border-bottom border-primary border-opacity-25">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="rounded bg-secondary d-flex align-items-center justify-content-center" style="width: 30px; height: 20px;">
+                                    <div class="rounded bg-primary text-white d-flex align-items-center justify-content-center" style="width: 30px; height: 20px;">
                                         {{ $c->code }}
                                     </div>
                                     <span class="fw-bold">{{ $c->name }}</span>
                                 </div>
                             </td>
-                            <td class="bg-transparent border-bottom border-secondary border-opacity-25">{{ $c->currency_code }}</td>
-                            <td class="bg-transparent border-bottom border-secondary border-opacity-25">
+                            <td class="bg-transparent border-bottom border-primary border-opacity-25">{{ $c->currency_code }}</td>
+                            <td class="bg-transparent border-bottom border-primary border-opacity-25">
                                 <button class="btn btn-sm btn-primary" onclick="loadCountryData('{{ $c->code }}')">Analyze</button>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="3" class="text-center text-secondary py-4">Your watchlist is empty. Select a country and click the star icon to add it here.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -131,6 +159,10 @@
 
 @push('scripts')
 <script>
+    // User's watchlist data
+    let userWatchlistIds = @json($watchlistIds);
+    let currentCountryId = null;
+
     // 1. Initialize Map
     const map = L.map('map').setView([20, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -154,8 +186,8 @@
                 markersGroup.clearLayers();
                 document.getElementById('portCount').innerText = data.length;
                 data.forEach(port => {
-                    L.circleMarker([port.lat, port.lng], {
-                        radius: 5,
+                    const marker = L.circleMarker([port.lat, port.lng], {
+                        radius: 6,
                         fillColor: '#3b82f6',
                         color: '#fff',
                         weight: 1.5,
@@ -163,6 +195,19 @@
                         fillOpacity: 0.8
                     }).addTo(markersGroup)
                     .bindPopup(`<b>${port.port_name}</b><br>${port.country_name}`);
+
+                    if (countryCode) {
+                        marker.bindTooltip(port.port_name, {
+                            permanent: true,
+                            direction: 'right',
+                            className: 'port-label'
+                        });
+                    } else {
+                        marker.bindTooltip(port.port_name, {
+                            permanent: false,
+                            direction: 'top'
+                        });
+                    }
                 });
             });
     }
@@ -200,6 +245,24 @@
         // Fetch ports for this country
         loadPorts(countryCode);
 
+        // Update Toggle Button Visibility
+        const selectedOption = selector.options[selector.selectedIndex];
+        currentCountryId = selectedOption ? parseInt(selectedOption.getAttribute('data-id')) : null;
+        
+        const toggleBtn = document.getElementById('toggleWatchlistBtn');
+        const watchIcon = document.getElementById('watchlistIcon');
+        
+        if (currentCountryId) {
+            toggleBtn.style.display = 'inline-block';
+            if (userWatchlistIds.includes(currentCountryId)) {
+                watchIcon.className = 'fa-solid fa-star text-warning fa-lg';
+            } else {
+                watchIcon.className = 'fa-regular fa-star fa-lg';
+            }
+        } else {
+            toggleBtn.style.display = 'none';
+        }
+
         // Fetch Risk
         fetch(`/api/risk?country=${countryCode}`)
             .then(res => res.json())
@@ -229,7 +292,7 @@
                     const rate = parseFloat(data.raw_data.currency.rate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
                     document.getElementById('currencyRateText').innerHTML = `
                         <span class="fs-5 fw-bold text-success">1 USD = ${rate} ${code}</span>
-                        <br><span class="text-light opacity-50 small">Risk weight contribution: ${data.breakdown.currency}%</span>
+                        <br><span class="text-dark small fw-bold">Risk weight contribution: ${data.breakdown.currency}%</span>
                     `;
                 } else {
                     document.getElementById('currencyRateText').innerText = 'No currency data available';
@@ -264,13 +327,13 @@
                         maintainAspectRatio: false,
                         scales: {
                             r: {
-                                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                                pointLabels: { color: '#94a3b8', font: { size: 11 } },
+                                angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                                grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                                pointLabels: { color: '#000000', font: { size: 12, weight: 'bold' } },
                                 ticks: { display: false, min: 0, max: 100 }
                             }
                         },
-                        plugins: { legend: { labels: { color: '#f8fafc' } } }
+                        plugins: { legend: { labels: { color: '#000000', font: { weight: 'bold' } } } }
                     }
                 });
             });
@@ -283,21 +346,27 @@
                 widget.innerHTML = `<h5 class="mb-4 fw-bold">Intelligence (${countryCode})</h5>`;
                 
                 if(data.news.length === 0) {
-                    widget.innerHTML += '<p class="text-muted small">No recent news found.</p>';
+                    widget.innerHTML += '<p class="text-secondary small">No recent news found.</p>';
                     return;
                 }
                 
                 data.news.forEach(article => {
-                    const title = article.title.length > 50 ? article.title.substring(0, 50) + '...' : article.title;
-                    const desc = article.description ? (article.description.length > 80 ? article.description.substring(0, 80) + '...' : article.description) : '';
+                    const titleStr = article.title || 'Untitled';
+                    const title = titleStr.length > 50 ? titleStr.substring(0, 50) + '...' : titleStr;
+                    
+                    const descStr = article.description || '';
+                    const desc = descStr.length > 80 ? descStr.substring(0, 80) + '...' : descStr;
+                    
                     const date = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Recent';
+                    const sourceName = (article.source && article.source.name) ? article.source.name : 'System';
+                    const url = article.url ? article.url : '#';
                     
                     widget.innerHTML += `
                         <div class="mb-3 pb-3 border-bottom border-secondary border-opacity-25">
-                            <h6 class="mb-1 fw-bold fs-6"><a href="${article.url}" target="_blank" class="text-white text-decoration-none hover-primary">${title}</a></h6>
-                            <p class="text-muted mb-1 small" style="font-size: 0.75rem;">${desc}</p>
-                            <div class="d-flex justify-content-between text-muted" style="font-size: 0.7rem;">
-                                <span><i class="fa-solid fa-building"></i> ${article.source.name}</span>
+                            <h6 class="mb-1 fw-bold fs-6"><a href="${url}" target="_blank" class="text-dark text-decoration-none hover-primary">${title}</a></h6>
+                            <p class="text-secondary mb-1 small" style="font-size: 0.75rem;">${desc}</p>
+                            <div class="d-flex justify-content-between text-secondary" style="font-size: 0.7rem;">
+                                <span><i class="fa-solid fa-building"></i> ${sourceName}</span>
                                 <span><i class="fa-regular fa-calendar"></i> ${date}</span>
                             </div>
                         </div>
@@ -315,6 +384,34 @@
             });
     }
 
+
+    function toggleWatchlist() {
+        if (!currentCountryId) return;
+
+        fetch('/watchlist/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ country_id: currentCountryId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'added') {
+                userWatchlistIds.push(currentCountryId);
+            } else if (data.status === 'removed') {
+                userWatchlistIds = userWatchlistIds.filter(id => id !== currentCountryId);
+            }
+            
+            // Reload page dynamically to update the watchlist table
+            location.reload();
+        })
+        .catch(err => {
+            console.error('Error toggling watchlist:', err);
+            alert('Failed to update watchlist.');
+        });
+    }
 
 </script>
 @endpush
