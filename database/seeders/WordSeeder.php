@@ -29,6 +29,12 @@ class WordSeeder extends Seeder
         $posData = array_map(fn($w) => ['word' => $w, 'created_at' => now(), 'updated_at' => now()], $positive);
         $negData = array_map(fn($w) => ['word' => $w, 'created_at' => now(), 'updated_at' => now()], $negative);
 
+        // Skip if already seeded
+        if (DB::table('positive_words')->count() > 0) {
+            $this->command->info('Words already seeded, skipping.');
+            return;
+        }
+
         DB::table('positive_words')->insert($posData);
         DB::table('negative_words')->insert($negData);
     }

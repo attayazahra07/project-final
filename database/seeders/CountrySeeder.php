@@ -66,6 +66,12 @@ class CountrySeeder extends Seeder
             }
         }
 
+        // Skip if already seeded
+        if (DB::table('countries')->count() > 0) {
+            $this->command->info('Countries already seeded, skipping.');
+            return;
+        }
+
         // Insert in chunks of 50
         foreach (array_chunk($uniqueCountries, 50) as $chunk) {
             DB::table('countries')->insert($chunk);

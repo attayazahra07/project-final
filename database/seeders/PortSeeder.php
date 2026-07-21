@@ -17,6 +17,12 @@ class PortSeeder extends Seeder
         }
 
         $countries = DB::table('countries')->pluck('id', 'code')->toArray();
+
+        // Skip if already seeded
+        if (DB::table('ports')->count() > 0) {
+            $this->command->info('Ports already seeded, skipping.');
+            return;
+        }
         // $countries will be like ['ID' => 1, 'US' => 2, ...]
 
         $file = fopen($csvFile, 'r');
